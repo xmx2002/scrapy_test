@@ -18,8 +18,8 @@ def inser_db(id,url):
     conn = psycopg2.connect(database="freebuf", user="postgres", password="123456", host="127.0.0.1", port="5432")
     try:
         cur=conn.cursor()
-        #ret=cur.execute("CREATE TABLE URL (ID INT PRIMARY KEY NOT NULL,URL TEXT NOT NULL);")
-        cur.execute("INSERT INTO URL (ID,URL) VALUES (1,'http://www.xmxbest.com')");
+        ret=cur.execute("CREATE TABLE URL (ID INT PRIMARY KEY NOT NULL,URL TEXT NOT NULL);")
+        cur.execute("INSERT INTO URL (ID,URL) VALUES (1,%s)",(url,));
 
         conn.commit()
         log.msg("Data added to PostgreSQL database!",
