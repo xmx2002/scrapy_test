@@ -65,7 +65,7 @@ class FreebufSpider(scrapy.Spider):
     def parse(self, response):
         for href in response.xpath('//dl/dt/a/@href'):
             url = response.urljoin(href.extract())
-            if not select_db(url):
+            if select_db(url) == None:
                 inser_db(id,url)
                 yield scrapy.Request(url, callback=self.parse_dir_contents)
 
