@@ -8,7 +8,7 @@ import psycopg2
 dir_path = '%s/%s' % (ftest.settings.IMAGES_STORE,"freebuf")
 def gen_link():
     url=['http://www.freebuf.com/articles']
-    for i in range(2,215):
+    for i in range(2,3):
         #t='http://www.freebuf.com/articles/page/'+str(i)
         url.append('http://www.freebuf.com/articles/page/'+str(i))
     return url
@@ -18,8 +18,8 @@ def inser_db(id,url):
     conn = psycopg2.connect(database="freebuf", user="postgres", password="123456", host="127.0.0.1", port="5432")
     try:
         cur=conn.cursor()
-        ret=cur.execute("CREATE TABLE URL (ID INT PRIMARY KEY NOT NULL,URL TEXT NOT NULL);")
-        cur.execute("INSERT INTO URL (ID,URL) VALUES (1,%s)",(url,));
+        #ret=cur.execute("CREATE TABLE URL (ID INT PRIMARY KEY NOT NULL,URL TEXT NOT NULL);")
+        cur.execute("INSERT INTO URL (ID,URL) VALUES (%d,%s)",id,(url,));
 
         conn.commit()
         log.msg("Data added to PostgreSQL database!",
@@ -47,6 +47,7 @@ def select_db(url):
             retval = True
         else:
             retval = False
+        return retval
     except Exception,e:
         print 'insert record into table failed'
         print e
@@ -55,7 +56,7 @@ def select_db(url):
         if cur:
             cur.close()
     conn.close()
-    return retval
+    return False
 class FreebufSpider(scrapy.Spider):
     name = "freebuf"
     #allowed_domains = ["freebuf.com"]
@@ -65,7 +66,8 @@ class FreebufSpider(scrapy.Spider):
     def parse(self, response):
         for href in response.xpath('//dl/dt/a/@href'):
             url = response.urljoin(href.extract())
-            if select_db(url) == None:
+            if not select_db(url):
+                print 'insert '+ url
                 inser_db(id,url)
                 yield scrapy.Request(url, callback=self.parse_dir_contents)
 
