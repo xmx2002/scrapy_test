@@ -6,7 +6,7 @@ import ftest.settings
 import psycopg2
 
 dir_path = '%s/%s' % (ftest.settings.IMAGES_STORE,"freebuf")
-id=1
+
 def gen_link():
     url=['http://www.freebuf.com/articles']
     for i in range(2,225):
@@ -68,7 +68,7 @@ class FreebufSpider(scrapy.Spider):
     #allowed_domains = ["freebuf.com"]
     #start_urls = ['http://www.freebuf.com/articles']
     start_urls = gen_link()
-    
+    id=1
     def parse(self, response):
         
         for href in response.xpath('//dl/dt/a/@href'):
