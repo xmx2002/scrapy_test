@@ -8,9 +8,9 @@ import psycopg2
 dir_path = '%s/%s' % (ftest.settings.IMAGES_STORE,"freebuf")
 def gen_link():
     url=['http://www.freebuf.com/articles']
-    #for i in range(2,3):
+    for i in range(2,225):
         #t='http://www.freebuf.com/articles/page/'+str(i)
-        #url.append('http://www.freebuf.com/articles/page/'+str(i))
+        url.append('http://www.freebuf.com/articles/page/'+str(i))
     return url
 
 def inser_db(id,url):
@@ -77,7 +77,7 @@ class FreebufSpider(scrapy.Spider):
                 #print 'insert '+ url
                 inser_db(id,url)
                 id=id+1
-                #yield scrapy.Request(url, callback=self.parse_dir_contents)
+                yield scrapy.Request(url, callback=self.parse_dir_contents)
 
     def parse_dir_contents(self, response):
         #mkdir
