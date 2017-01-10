@@ -14,16 +14,16 @@ def gen_link():
         url.append('http://www.freebuf.com/articles/page/'+str(i))
     return url
 
-def inser_db(id,url):
+def inser_db(db_id,url):
     #sql_desc="INSERT INTO postgresql_1(fullname, username, organization, mail, joined,followers,starred,following,popular_repos,popular_repos_download,popular_repos_star,popular_repos_info,home_page)values(item['fullname'], item['username'], item['organization'], item['mail'],item['joined'],item['followers'],item['starred'],item['following'],item['popular_repos'],item['popular_repos_download'],item['popular_repos_star'],item['popular_repos_info'], item['home_page'])"
     conn = psycopg2.connect(database="freebuf", user="postgres", password="123456", host="127.0.0.1", port="5432")
     try:
         cur=conn.cursor()
         #ret=cur.execute("CREATE TABLE URL (ID INT PRIMARY KEY NOT NULL,URL TEXT NOT NULL);")
         
-        print type(id)
+        print type(db_id)
         #cur.execute("INSERT INTO URL (ID,URL) VALUES (%d,%s)",(id,url));
-        cur.execute("INSERT INTO URL (ID,URL) VALUES (%s,%s)", (str(id),url,));
+        cur.execute("INSERT INTO URL (ID,URL) VALUES (%s,%s)", (str(db_id),url,));
         
 
         conn.commit()
@@ -68,7 +68,7 @@ class FreebufSpider(scrapy.Spider):
     #allowed_domains = ["freebuf.com"]
     #start_urls = ['http://www.freebuf.com/articles']
     start_urls = gen_link()
-    id=1
+    db_id = 1
     def parse(self, response):
         
         for href in response.xpath('//dl/dt/a/@href'):
@@ -76,8 +76,8 @@ class FreebufSpider(scrapy.Spider):
             
             if not select_db(url):
                 #print 'insert '+ url
-                inser_db(id,url)
-                id=id+1
+                inser_db(self.db_id,url)
+                self.db_id+=1
                 yield scrapy.Request(url, callback=self.parse_dir_contents)
 
     def parse_dir_contents(self, response):
