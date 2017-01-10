@@ -8,9 +8,9 @@ import psycopg2
 dir_path = '%s/%s' % (ftest.settings.IMAGES_STORE,"freebuf")
 def gen_link():
     url=['http://www.freebuf.com/articles']
-    for i in range(2,3):
+    #for i in range(2,3):
         #t='http://www.freebuf.com/articles/page/'+str(i)
-        url.append('http://www.freebuf.com/articles/page/'+str(i))
+        #url.append('http://www.freebuf.com/articles/page/'+str(i))
     return url
 
 def inser_db(id,url):
@@ -19,7 +19,11 @@ def inser_db(id,url):
     try:
         cur=conn.cursor()
         #ret=cur.execute("CREATE TABLE URL (ID INT PRIMARY KEY NOT NULL,URL TEXT NOT NULL);")
-        cur.execute("INSERT INTO URL (ID,URL) VALUES (%d,%s)",id,(url,));
+        
+        print type(id)
+        #cur.execute("INSERT INTO URL (ID,URL) VALUES (%d,%s)",(id,url));
+        cur.execute("INSERT INTO URL (ID,URL) VALUES (%s,%s)", (str(id),url,));
+        
 
         conn.commit()
         log.msg("Data added to PostgreSQL database!",
@@ -28,6 +32,7 @@ def inser_db(id,url):
     except Exception,e:
         print 'insert record into table failed'
         print e
+      
 
     finally:
         if cur:
@@ -41,7 +46,7 @@ def select_db(url):
     try:
         cur=conn.cursor()
         #cur.execute("SELECT URL from URL")
-        cur.execute("SELECT URL from URL where URL= %s",(url,))
+        cur.execute("SELECT URL from URL where URL= %s",url)
         rows = cur.fetchall()
         if rows:
             retval = True
@@ -64,12 +69,15 @@ class FreebufSpider(scrapy.Spider):
     start_urls = gen_link()
     
     def parse(self, response):
+        id=1
         for href in response.xpath('//dl/dt/a/@href'):
             url = response.urljoin(href.extract())
+            
             if not select_db(url):
-                print 'insert '+ url
+                #print 'insert '+ url
                 inser_db(id,url)
-                yield scrapy.Request(url, callback=self.parse_dir_contents)
+                id=id+1
+                #yield scrapy.Request(url, callback=self.parse_dir_contents)
 
     def parse_dir_contents(self, response):
         #mkdir
@@ -88,7 +96,7 @@ class FreebufSpider(scrapy.Spider):
                 item = replaceItem()
                 item['html_name'] = filename
                 item['pic_url'] = sel
-                print item['pic_url']
+                #print item['pic_url']
                 us = item['pic_url'].split('/')[3:]
                 image_file_name = '_'.join(us)
                 file_path = '%s/%s' % (dir_path, image_file_name)                
