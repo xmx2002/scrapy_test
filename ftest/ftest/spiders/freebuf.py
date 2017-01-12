@@ -9,9 +9,8 @@ dir_path = '%s/%s' % (ftest.settings.IMAGES_STORE,"freebuf")
 
 def gen_link():
     url=['http://www.freebuf.com/articles']
-    #for i in range(2,225):
-        #t='http://www.freebuf.com/articles/page/'+str(i)
-        #url.append('http://www.freebuf.com/articles/page/'+str(i))
+    for i in range(2,225):
+        url.append('http://www.freebuf.com/articles/page/'+str(i))
     return url
 
 def inser_db(db_id,url):
